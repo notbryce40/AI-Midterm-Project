@@ -1,3 +1,5 @@
 # AI-Midterm-Project
 
-<h>Midterm Project</h>
+<h1>Members</h1>
+<p>-Bryce Landry
+   -</p>
