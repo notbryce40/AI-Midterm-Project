@@ -19,6 +19,9 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 
+# AI Difficulty
+AI_DEPTH = 4
+
 # Create the display
 screen = pygame.display.set_mode(size)
 
@@ -55,6 +58,71 @@ def draw_board(board):
             elif board[r][c] == 2:
                 pygame.draw.circle(screen, YELLOW, (int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
     pygame.display.update()
+
+# Evaluation function for the AI
+def evaluate_window(window, piece):
+    score = 0
+    opp_piece = 1 if piece == 2 else 2
+
+    if window.count(piece) == 4:
+        score += 100
+    elif window.count(piece) == 3 and window.count(0) == 1:
+        score += 5
+    elif window.count(piece) == 2 and window.count(0) == 2:
+        score += 2
+
+    if window.count(opp_piece) == 3 and window.count(0) == 1:
+        score -= 4
+
+    return score
+
+# Minimax with alpha-beta pruning
+def minimax(board, depth, alpha, beta, maximizingPlayer):
+    valid_locations = [c for c in range(COLUMN_COUNT) if is_valid_location(board, c)]
+    is_terminal = winning_move(board, 1) or winning_move(board, 2) or len(valid_locations) == 0
+
+    if depth == 0 or is_terminal:
+        if is_terminal:
+            if winning_move(board, 2):
+                return (None, 100000000000000)
+            elif winning_move(board, 1):
+                return (None, -10000000000000)
+            else:
+                return (None, 0)
+        else:
+            return (None, score_position(board, 2))
+
+    if maximizingPlayer:
+        value = -math.inf
+        column = np.random.choice(valid_locations)
+        for col in valid_locations:
+            row = get_next_open_row(board, col)
+            temp_board = board.copy()
+            drop_piece(temp_board, row, col, 2)
+            new_score = minimax(temp_board, depth - 1, alpha, beta, False)[1]
+            if new_score > value:
+                value = new_score
+                column = col
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return column, value
+
+    else:
+        value = math.inf
+        column = np.random.choice(valid_locations)
+        for col in valid_locations:
+            row = get_next_open_row(board, col)
+            temp_board = board.copy()
+            drop_piece(temp_board, row, col, 1)
+            new_score = minimax(temp_board, depth - 1, alpha, beta, True)[1]
+            if new_score < value:
+                value = new_score
+                column = col
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+        return column, value
 
 # Main loop to handle game events and rendering
 def main():
