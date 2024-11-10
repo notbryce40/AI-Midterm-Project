@@ -319,7 +319,7 @@ def main():
                 if AI_DEPTH == 4 :
                     Difficulty = "Hard"
                 if turn == 1 :
-                    print("Congratulations! You beat the AI on",Difficulty,"Difficulty!")
+                    print("Congratulations! You beat the AI on", Difficulty, "Difficulty!")
                 else :
                     print("Oops! The AI has won!")
 
