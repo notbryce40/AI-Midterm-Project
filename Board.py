@@ -2,6 +2,7 @@ import pygame
 import sys
 import numpy as np
 import math
+import tkinter as tk
 
 # Initialize pygame
 pygame.init()
@@ -64,14 +65,17 @@ def winning_move(board, piece):
         for r in range(ROW_COUNT):
             if board[r][c] == piece and board[r][c+1] == piece and board[r][c+2] == piece and board[r][c+3] == piece:
                 return True
+            
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT - 3):
             if board[r][c] == piece and board[r+1][c] == piece and board[r+2][c] == piece and board[r+3][c] == piece:
                 return True
+            
     for c in range(COLUMN_COUNT - 3):
         for r in range(ROW_COUNT - 3):
             if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
                 return True
+            
     for c in range(COLUMN_COUNT - 3):
         for r in range(3, ROW_COUNT):
             if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
@@ -177,43 +181,57 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+
             if event.type == pygame.MOUSEMOTION:
                 pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
                 posx = event.pos[0]
                 pygame.draw.circle(screen, RED if turn == 0 else YELLOW, (posx, int(SQUARESIZE / 2)), RADIUS)
                 pygame.display.update()
+
             if game_mode == 0 and event.type == pygame.MOUSEBUTTONDOWN:
                 posx = event.pos[0]
                 col = int(posx // SQUARESIZE)
+
                 if is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     drop_piece(board, row, col, 1 if turn == 0 else 2)
+
                     if winning_move(board, 1 if turn == 0 else 2):
                         game_over = True
+
                     draw_board(board)
                     turn = (turn + 1) % 2
                     moves += 1
+
             if game_mode == 1 and event.type == pygame.MOUSEBUTTONDOWN and turn == 0:
                 posx = event.pos[0]
                 col = int(posx // SQUARESIZE)
                 if is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     drop_piece(board, row, col, 1)
+
                     if winning_move(board, 1):
                         game_over = True
+
                     draw_board(board)
                     turn += 1
+
             if game_mode == 1 and turn == 1 and not game_over:
                 col, _ = minimax(board, AI_DEPTH, -math.inf, math.inf, True)
+
                 if is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     drop_piece(board, row, col, 2)
+                    
                     if winning_move(board, 2):
                         game_over = True
+                    
                     draw_board(board)
                     turn = (turn + 1) % 2
+
         if moves == 42:
             game_over = True
+        
         if game_over:
             print("Game Over")
             break

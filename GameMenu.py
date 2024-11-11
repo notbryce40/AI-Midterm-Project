@@ -27,7 +27,7 @@ root.title("Game Menu")
 root.geometry("600x400")  # Doubled the window size
 
 # Label for the menu
-label = tk.Label(root, text="Are you ready to play?", font=("Arial", 28))
+label = tk.Label(root, text="Are you ready to play?", font=("Comic Sans MS", 24))
 label.pack(pady=20)
 
 # Difficulty buttons
