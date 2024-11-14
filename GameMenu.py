@@ -15,9 +15,9 @@ def set_difficulty(level):
 def open_board(game_mode):
     try:
         if game_mode == 1:  # PvAI mode
-            subprocess.run(["python", "Board.py", str(game_mode), str(AI_DIFFICULTY)])
+            subprocess.run(["python3", "Board.py", str(game_mode), str(AI_DIFFICULTY)])
         else:  # PvP mode
-            subprocess.run(["python", "Board.py", str(game_mode)])
+            subprocess.run(["python3", "Board.py", str(game_mode)])
     except Exception as e:
         messagebox.showerror("Error", f"Could not open Board.py: {e}")
 

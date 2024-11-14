@@ -249,7 +249,14 @@ def main():
                     turn = (turn + 1) % 2
 
         if moves == 42:
+            font = pygame.font.SysFont("Arial", 50)
+            text = font.render("Game Tied", True, WHITE)
+            screen.blit(text, (width // 2 - text.get_width() // 2, height // 2 - text.get_height() // 2))
+            pygame.display.update()
+            pygame.time.wait(5000)  # Pause for 5 seconds
             game_over = True
+            pygame.quit()
+
         
         if game_over:
             pygame.time.wait(5000)
