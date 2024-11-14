@@ -2,7 +2,6 @@ import pygame
 import sys
 import numpy as np
 import math
-import tkinter as tk
 
 # Initialize pygame
 pygame.init()
@@ -58,24 +57,33 @@ def draw_board(board):
                 pygame.draw.circle(screen, YELLOW, (int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
     pygame.display.update()
 
+# Display the winner of the game
+def display_winner(winner_name):
+    font = pygame.font.SysFont("Arial", 50)
+    text = font.render(f"{winner_name} Wins!", True, WHITE)
+    screen.blit(text, (width // 2 - text.get_width() // 2, height // 2 - text.get_height() // 2))
+    pygame.display.update()
+    pygame.time.wait(5000)  # Pause for 5 seconds
+    pygame.quit()
+
 # Checks for the winning move
 def winning_move(board, piece):
-    # Horizontal, vertical, and diagonal checks for four-in-a-row
+    # Horizontal check
     for c in range(COLUMN_COUNT - 3):
         for r in range(ROW_COUNT):
             if board[r][c] == piece and board[r][c+1] == piece and board[r][c+2] == piece and board[r][c+3] == piece:
                 return True
-            
+    # Vertical check
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT - 3):
             if board[r][c] == piece and board[r+1][c] == piece and board[r+2][c] == piece and board[r+3][c] == piece:
                 return True
-            
+    # Diagonal check /
     for c in range(COLUMN_COUNT - 3):
         for r in range(ROW_COUNT - 3):
             if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
                 return True
-            
+    # Diagonal check \
     for c in range(COLUMN_COUNT - 3):
         for r in range(3, ROW_COUNT):
             if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
@@ -85,6 +93,7 @@ def winning_move(board, piece):
 def evaluate_window(window, piece):
     score = 0
     opp_piece = 1 if piece == 2 else 2
+
     if window.count(piece) == 4:
         score += 100
     elif window.count(piece) == 3 and window.count(0) == 1:
@@ -97,9 +106,12 @@ def evaluate_window(window, piece):
 
 def score_position(board, piece):
     score = 0
+    # Center Column Score
     center_array = [int(board[r][COLUMN_COUNT // 2]) for r in range(ROW_COUNT)]
     center_count = center_array.count(piece)
     score += center_count * 3
+
+    # Horizontal, vertical, and diagonal scoring
     for r in range(ROW_COUNT):
         row_array = [int(board[r][c]) for c in range(COLUMN_COUNT)]
         for c in range(COLUMN_COUNT - 3):
@@ -120,6 +132,7 @@ def score_position(board, piece):
             score += evaluate_window(window, piece)
     return score
 
+# Minimax with alpha-beta pruning
 def minimax(board, depth, alpha, beta, maximizingPlayer):
     valid_locations = [c for c in range(COLUMN_COUNT) if is_valid_location(board, c)]
     is_terminal = winning_move(board, 1) or winning_move(board, 2) or len(valid_locations) == 0
@@ -165,6 +178,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
                 break
         return column, value
 
+# Main game loop
 def main():
     game_mode = int(sys.argv[1])
     ai_difficulty = int(sys.argv[2]) if game_mode == 1 else None
@@ -177,7 +191,7 @@ def main():
     draw_board(board)
     pygame.display.update()
 
-    while True:
+    while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -191,13 +205,14 @@ def main():
             if game_mode == 0 and event.type == pygame.MOUSEBUTTONDOWN:
                 posx = event.pos[0]
                 col = int(posx // SQUARESIZE)
-
                 if is_valid_location(board, col):
                     row = get_next_open_row(board, col)
                     drop_piece(board, row, col, 1 if turn == 0 else 2)
-
                     if winning_move(board, 1 if turn == 0 else 2):
+                        draw_board(board)
                         game_over = True
+                        winner = "Red" if turn == 0 else "Yellow"
+                        display_winner(winner)
 
                     draw_board(board)
                     turn = (turn + 1) % 2
@@ -211,7 +226,9 @@ def main():
                     drop_piece(board, row, col, 1)
 
                     if winning_move(board, 1):
+                        draw_board(board)
                         game_over = True
+                        display_winner("Player")
 
                     draw_board(board)
                     turn += 1
@@ -224,7 +241,9 @@ def main():
                     drop_piece(board, row, col, 2)
                     
                     if winning_move(board, 2):
+                        draw_board(board)
                         game_over = True
+                        display_winner("AI")
                     
                     draw_board(board)
                     turn = (turn + 1) % 2
@@ -233,8 +252,7 @@ def main():
             game_over = True
         
         if game_over:
-            print("Game Over")
-            break
+            pygame.time.wait(5000)
 
 if __name__ == "__main__":
     main()
